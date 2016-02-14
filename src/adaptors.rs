@@ -12,12 +12,14 @@ use std::num::One;
 use std::ops::Add;
 use std::ops::Index;
 use std::iter::{Fuse, Peekable, FlatMap};
-use std::collections::{BinaryHeap, HashSet};
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::cmp::Ordering;
 use Itertools;
 use size_hint;
 use misc::MendSlice;
+
+use binary_heap::BinaryHeap;
 
 macro_rules! clone_fields {
     ($name:ident, $base:expr, $($field:ident),+) => (
@@ -821,11 +823,14 @@ impl<I> Iterator for KMerge<I> where
     type Item = I::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.heap.pop().map(|p| {
+        let mut head = self.heap.head();
+        if let Some(p) = head.take() {
             let (h, t) = p.next();
-            t.map(|t| self.heap.push(t));
-            h
-        })
+            if let Some(t) = t { head.put(t); }
+            Some(h)
+        } else {
+            None
+        }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

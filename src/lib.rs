@@ -35,6 +35,8 @@
 //!
 //!
 
+extern crate binary_heap;
+
 use std::iter::{self, IntoIterator};
 use std::fmt::Write;
 use std::cmp::Ordering;
